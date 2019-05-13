@@ -46,9 +46,7 @@ class QuestionsProducerExample(implicit ss: SparkSession, ssc: StreamingContext)
                 question.id.toLong,
                 question.creationDate,
                 question.ownerUserId.toLong,
-                question.body,
                 question.tags,
-                question.title,
                 question.score.toLong,
                 question.acceptedAnswerId.toLong,
                 question.favoriteCount.toLong

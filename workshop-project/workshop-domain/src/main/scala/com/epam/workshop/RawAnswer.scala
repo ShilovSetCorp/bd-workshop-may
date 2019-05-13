@@ -1,13 +1,9 @@
 package com.epam.workshop
 
-case class RawAnswer(id: String,
-                     postTypeId: String,
-                     parentId: String,
+case class RawAnswer(commentCount: String,
                      creationDate: String,
-                     score: String,
-                     body: String,
+                     id: String,
                      ownerUserId: String,
-                     lastEditorUserId: String,
-                     lastEditDate: String,
-                     lastActivityDate: String,
-                     commentCount: String)
+                     parentId: String,
+                     postTypeId: String,
+                     score: String)

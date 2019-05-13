@@ -1,12 +1,7 @@
 package com.epam.workshop
 
-import java.util.Properties
-
-import org.apache.kafka.clients.producer.{KafkaProducer, ProducerRecord}
-import org.apache.kafka.common.serialization.{LongSerializer, StringSerializer}
-import org.apache.spark.sql.{SaveMode, SparkSession}
+import org.apache.spark.sql.SparkSession
 import org.apache.spark.streaming.StreamingContext
-import org.codehaus.jackson.map.ObjectMapper
 
 class QuestionsProducer(implicit ss: SparkSession, ssc: StreamingContext) {
 
@@ -14,8 +9,6 @@ class QuestionsProducer(implicit ss: SparkSession, ssc: StreamingContext) {
                        outputPath: String,
                        bootstrapServer: String,
                        topic: String): Unit = {
-
-    import ss.implicits._
 
     ssc
       .textFileStream(inputPath)
@@ -35,9 +28,7 @@ class QuestionsProducer(implicit ss: SparkSession, ssc: StreamingContext) {
                 question.id.toLong,
                 question.creationDate,
                 question.ownerUserId.toLong,
-                question.body,
                 question.tags,
-                question.title,
                 question.score.toLong,
                 question.acceptedAnswerId.toLong,
                 question.favoriteCount.toLong

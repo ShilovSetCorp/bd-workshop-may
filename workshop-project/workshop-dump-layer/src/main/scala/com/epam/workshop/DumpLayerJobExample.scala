@@ -63,9 +63,7 @@ object DumpLayerJobExample {
           question.id.toLong,
           answer.creationDate,
           answer.ownerUserId.toLong,
-          answer.body,
           question.tags,
-          question.title,
           answer.score.toLong,
           0L,
           0L
@@ -79,9 +77,7 @@ object DumpLayerJobExample {
       question.id.toLong,
       question.creationDate,
       question.ownerUserId.toLong,
-      question.body,
       question.tags,
-      question.title,
       question.score.toLong,
       question.acceptedAnswerId.toLong,
       question.favoriteCount.toLong

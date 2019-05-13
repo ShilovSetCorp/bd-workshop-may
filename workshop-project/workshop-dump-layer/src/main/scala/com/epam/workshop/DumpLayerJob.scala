@@ -1,8 +1,6 @@
 package com.epam.workshop
 
-import com.epam.workshop.DumpLayerJob.{answerWithQuestionToCommon, prepareTagsUdf, questionToCommon}
-import org.apache.spark.sql.functions.udf
-import org.apache.spark.sql.{Dataset, SaveMode, SparkSession}
+import org.apache.spark.sql.SparkSession
 
 class DumpLayerJob(implicit ss: SparkSession) {
 
@@ -12,8 +10,6 @@ class DumpLayerJob(implicit ss: SparkSession) {
                   answersOutputPath: String,
                   esServer: String,
                   esIndex: String): Unit = {
-
-    import ss.implicits._
 
     //create hdfs storage
 
@@ -45,9 +41,7 @@ object DumpLayerJob {
           question.id.toLong,
           answer.creationDate,
           answer.ownerUserId.toLong,
-          answer.body,
           question.tags,
-          question.title,
           answer.score.toLong,
           0L,
           0L
@@ -61,9 +55,7 @@ object DumpLayerJob {
       question.id.toLong,
       question.creationDate,
       question.ownerUserId.toLong,
-      question.body,
       question.tags,
-      question.title,
       question.score.toLong,
       question.acceptedAnswerId.toLong,
       question.favoriteCount.toLong
