@@ -1,0 +1,10 @@
+spark-submit --master yarn --deploy-mode cluster \
+    --class com.epam.workshop.Main \
+    --driver-memory 1024m --num-executors 1 --executor-memory 1024m --conf spark.executor.cores=2 \
+    workshop-dump-layer-1.0-SNAPSHOT-jar-with-dependencies.jar
+    --questions-input /user/workshop/input/questions.csv
+    --answers-input /user/workshop/input/answers.csv
+    --questions-output /user/workshop/output/questions
+    --answers-output /user/workshop/output/answers
+    --es-server localhost:9200
+    --es-index workshop/dump
