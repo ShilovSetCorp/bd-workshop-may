@@ -1,11 +1,11 @@
 package com.epam.workshop
 
-case class CommonPost(id: Long,
-                      postType: Long,
-                      questionId: Long,
+case class CommonPost(id: String,
+                      postType: String,
+                      questionId: String,
                       creationDate: String,
-                      userId: Long,
+                      userId: String,
                       tags: String,
-                      score: Long,
-                      acceptedAnswerId: Long,
-                      favoriteCount: Long)
+                      score: String,
+                      acceptedAnswerId: String,
+                      favoriteCount: String)

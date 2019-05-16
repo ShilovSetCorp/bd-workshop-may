@@ -1,8 +1,10 @@
+export SPARK_MAJOR_VERSION=2
+
 spark-submit --master yarn --deploy-mode cluster \
-    --class com.epam.workshop.Main \
+    --class com.epam.workshop.MainExample \
     --driver-memory 1024m --num-executors 1 --executor-memory 1024m --conf spark.executor.cores=2 \
-    workshop-streaming-layer-1.0-SNAPSHOT-jar-with-dependencies.jar
-    --input-path /user/workshop/input/streaming-questions.csv
-    --output-path /user/workshop/output/questions
-    --bootstrap-server localhost:6667
+    workshop-streaming-layer-1.0-SNAPSHOT-jar-with-dependencies.jar \
+    --input-path /user/workshop/input/streaming-questions.csv \
+    --output-path /user/workshop/output/questions \
+    --bootstrap-server localhost:6667 \
     --topic common-posts

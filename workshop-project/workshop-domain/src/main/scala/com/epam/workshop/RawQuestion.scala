@@ -8,10 +8,12 @@ import shapeless.syntax.std.traversable._
 @JsonCreator
 case class RawQuestion(@JsonProperty("acceptedAnswerId") acceptedAnswerId: String,
                        @JsonProperty("answerCount") answerCount: String,
+                       @JsonProperty("body") body: String,
                        @JsonProperty("commentCount") commentCount: String,
                        @JsonProperty("creationDate") creationDate: String,
                        @JsonProperty("favoriteCount") favoriteCount: String,
                        @JsonProperty("id") id: String,
+                       @JsonProperty("ownerUserName") ownerUserName: String,
                        @JsonProperty("ownerUserId") ownerUserId: String,
                        @JsonProperty("postTypeId") postTypeId: String,
                        @JsonProperty("score") score: String,
@@ -24,7 +26,7 @@ object RawQuestion {
     (RawQuestion.apply _)
       .tupled(
         list
-          .toHList[String :: String :: String :: String :: String :: String :: String :: String :: String :: String :: String :: HNil]
+          .toHList[String :: String :: String :: String :: String :: String :: String :: String :: String :: String :: String :: String :: String :: HNil]
           .get
           .tupled
       )

@@ -2,8 +2,10 @@ package com.epam.workshop
 
 import java.util.Properties
 
+import com.epam.workshop.QuestionsProducerExample.prepareTagsUdf
 import org.apache.kafka.clients.producer.{KafkaProducer, ProducerRecord}
-import org.apache.kafka.common.serialization.{LongSerializer, StringSerializer}
+import org.apache.kafka.common.serialization.StringSerializer
+import org.apache.spark.sql.functions.udf
 import org.apache.spark.sql.{SaveMode, SparkSession}
 import org.apache.spark.streaming.StreamingContext
 import org.codehaus.jackson.map.ObjectMapper
@@ -22,39 +24,42 @@ class QuestionsProducerExample(implicit ss: SparkSession, ssc: StreamingContext)
       .foreachRDD(rdd => rdd
         .map(str => RawQuestion.fromList(str.split(",").toList))
         .foreachPartition(partitionRdd => {
+          val rawQuestions = ss.createDataset[RawQuestion](partitionRdd.toSeq)
           new HdfsStorageExample()
             .writeEntity(
-              ss.createDataset[RawQuestion](partitionRdd.toSeq),
+              rawQuestions
+                .withColumn("tags", prepareTagsUdf(rawQuestions.col("tags")))
+                .as[RawQuestion],
               outputPath,
               SaveMode.Append
             )
 
           val kafkaConfig = new Properties()
-          kafkaConfig.put("key.serializer", classOf[LongSerializer])
+          kafkaConfig.put("key.serializer", classOf[StringSerializer])
           kafkaConfig.put("value.serializer", classOf[StringSerializer])
           kafkaConfig.put("bootstrap.servers", bootstrapServer)
 
-          val producer = new KafkaProducer[Long, String](kafkaConfig)
+          val producer = new KafkaProducer[String, String](kafkaConfig)
 
           val objectMapper = new ObjectMapper
 
           partitionRdd
             .foreach(question => {
               val value = CommonPost(
-                question.id.toLong,
-                question.postTypeId.toLong,
-                question.id.toLong,
+                question.id,
+                question.postTypeId,
+                question.id,
                 question.creationDate,
-                question.ownerUserId.toLong,
+                question.ownerUserId,
                 question.tags,
-                question.score.toLong,
-                question.acceptedAnswerId.toLong,
-                question.favoriteCount.toLong
+                question.score,
+                question.acceptedAnswerId,
+                question.favoriteCount
               )
               producer.send(
                 new ProducerRecord(
                   topic,
-                  question.id.toLong,
+                  question.id,
                   objectMapper.writeValueAsString(value)
                 )
               )
@@ -64,4 +69,13 @@ class QuestionsProducerExample(implicit ss: SparkSession, ssc: StreamingContext)
         })
       )
   }
+}
+
+object QuestionsProducerExample {
+
+  private val prepareTagsUdf = udf((col: String) => col
+    .drop(1)
+    .dropRight(1)
+    .replaceAll("><", " ")
+  )
 }

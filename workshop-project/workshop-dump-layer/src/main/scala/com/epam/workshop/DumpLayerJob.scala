@@ -8,7 +8,9 @@ class DumpLayerJob(implicit ss: SparkSession) {
                   answersInputPath: String,
                   questionsOutputPath: String,
                   answersOutputPath: String,
+                  commonOutputPath: String,
                   esServer: String,
+                  esPort: String,
                   esIndex: String): Unit = {
 
     //create hdfs storage
@@ -36,28 +38,28 @@ object DumpLayerJob {
     answerWithQuestion match {
       case (answer, question) =>
         CommonPost(
-          answer.id.toLong,
-          answer.postTypeId.toLong,
-          question.id.toLong,
+          answer.id,
+          answer.postTypeId,
+          question.id,
           answer.creationDate,
-          answer.ownerUserId.toLong,
+          answer.ownerUserId,
           question.tags,
-          answer.score.toLong,
-          0L,
-          0L
+          answer.score,
+          null,
+          null
         )
     }
 
   private def questionToCommon(question: RawQuestion) =
     CommonPost(
-      question.id.toLong,
-      question.postTypeId.toLong,
-      question.id.toLong,
+      question.id,
+      question.postTypeId,
+      question.id,
       question.creationDate,
-      question.ownerUserId.toLong,
+      question.ownerUserId,
       question.tags,
-      question.score.toLong,
-      question.acceptedAnswerId.toLong,
-      question.favoriteCount.toLong
+      question.score,
+      question.acceptedAnswerId,
+      question.favoriteCount
     )
 }

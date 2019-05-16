@@ -20,6 +20,7 @@ class HdfsStorageExample(implicit ss: SparkSession) {
 
   def writeEntity(entity: Dataset[_], path: String, saveMode: SaveMode): Unit = entity
     .toDF()
+    .coalesce(1)
     .write
     .mode(saveMode)
     .parquet(path)

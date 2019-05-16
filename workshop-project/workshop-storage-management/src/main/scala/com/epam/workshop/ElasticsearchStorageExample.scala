@@ -5,10 +5,13 @@ import org.elasticsearch.spark.sql._
 
 class ElasticsearchStorageExample {
 
-  def writeEntity(entity: Dataset[_], esServer: String, esIndex: String): Unit =
-    entity
-      .saveToEs(
+  def writeEntity(entity: Dataset[_], esServer: String, esPort: String, esIndex: String): Unit =
+    entity.saveToEs(
         esIndex,
-        Map("es.nodes" -> esServer)
+      Map(
+        "es.nodes" -> esServer,
+        "es.port" -> esPort,
+        "es.index.auto.create" -> "true"
+      )
       )
 }

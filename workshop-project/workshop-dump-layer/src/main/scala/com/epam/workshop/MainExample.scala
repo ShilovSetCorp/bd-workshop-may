@@ -21,8 +21,16 @@ class DumpLayerArgsExample(args: Seq[String]) extends ScallopConf(args) {
     descr = "Answers output path"
   )
 
+  val commonOutput: ScallopOption[String] = opt[String](
+    descr = "Common output path"
+  )
+
   val esServer: ScallopOption[String] = opt[String](
     descr = "Elasticsearch server"
+  )
+
+  val esPort: ScallopOption[String] = opt[String](
+    descr = "Elasticsearch port"
   )
 
   val esIndex: ScallopOption[String] = opt[String](
@@ -46,7 +54,9 @@ object MainExample extends App {
     dumpLayerArgs.answersInput(),
     dumpLayerArgs.questionsOutput(),
     dumpLayerArgs.answersOutput(),
+    dumpLayerArgs.commonOutput(),
     dumpLayerArgs.esServer(),
+    dumpLayerArgs.esPort(),
     dumpLayerArgs.esIndex()
   )
 }

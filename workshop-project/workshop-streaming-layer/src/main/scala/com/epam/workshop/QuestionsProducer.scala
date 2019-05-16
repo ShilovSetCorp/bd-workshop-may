@@ -23,15 +23,15 @@ class QuestionsProducer(implicit ss: SparkSession, ssc: StreamingContext) {
           partitionRdd
             .foreach(question => {
               val value = CommonPost(
-                question.id.toLong,
-                question.postTypeId.toLong,
-                question.id.toLong,
+                question.id,
+                question.postTypeId,
+                question.id,
                 question.creationDate,
-                question.ownerUserId.toLong,
+                question.ownerUserId,
                 question.tags,
-                question.score.toLong,
-                question.acceptedAnswerId.toLong,
-                question.favoriteCount.toLong
+                question.score,
+                question.acceptedAnswerId,
+                question.favoriteCount
               )
 
               //send message

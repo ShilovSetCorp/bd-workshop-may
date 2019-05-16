@@ -10,7 +10,9 @@ class DumpLayerJobExample(implicit ss: SparkSession) {
                   answersInputPath: String,
                   questionsOutputPath: String,
                   answersOutputPath: String,
+                  commonOutputPath: String,
                   esServer: String,
+                  esPort: String,
                   esIndex: String): Unit = {
 
     import ss.implicits._
@@ -37,12 +39,11 @@ class DumpLayerJobExample(implicit ss: SparkSession) {
 
     val questionsCommonView = questions.map(questionToCommon(_))
 
-    new ElasticsearchStorageExample()
-      .writeEntity(
-        answersCommonView union questionsCommonView,
-        esServer,
-        esIndex
-      )
+    val commonPosts = (answersCommonView union questionsCommonView).cache()
+
+    hdfsStorage.writeEntity(commonPosts, commonOutputPath, SaveMode.Overwrite)
+
+    new ElasticsearchStorageExample().writeEntity(commonPosts, esServer, esPort, esIndex)
   }
 }
 
@@ -58,28 +59,28 @@ object DumpLayerJobExample {
     answerWithQuestion match {
       case (answer, question) =>
         CommonPost(
-          answer.id.toLong,
-          answer.postTypeId.toLong,
-          question.id.toLong,
+          answer.id,
+          answer.postTypeId,
+          question.id,
           answer.creationDate,
-          answer.ownerUserId.toLong,
+          answer.ownerUserId,
           question.tags,
-          answer.score.toLong,
-          0L,
-          0L
+          answer.score,
+          null,
+          null
         )
     }
 
   private def questionToCommon(question: RawQuestion) =
     CommonPost(
-      question.id.toLong,
-      question.postTypeId.toLong,
-      question.id.toLong,
+      question.id,
+      question.postTypeId,
+      question.id,
       question.creationDate,
-      question.ownerUserId.toLong,
+      question.ownerUserId,
       question.tags,
-      question.score.toLong,
-      question.acceptedAnswerId.toLong,
-      question.favoriteCount.toLong
+      question.score,
+      question.acceptedAnswerId,
+      question.favoriteCount
     )
 }
