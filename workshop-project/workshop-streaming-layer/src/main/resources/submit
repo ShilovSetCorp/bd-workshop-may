@@ -6,5 +6,5 @@ spark-submit --master yarn --deploy-mode cluster \
     workshop-streaming-layer-1.0-SNAPSHOT-jar-with-dependencies.jar \
     --input-path /user/workshop/input/streaming-questions.csv \
     --output-path /user/workshop/output/questions \
-    --bootstrap-server localhost:6667 \
+    --bootstrap-server sandbox-hdp.hortonworks.com:6667 \
     --topic common-posts

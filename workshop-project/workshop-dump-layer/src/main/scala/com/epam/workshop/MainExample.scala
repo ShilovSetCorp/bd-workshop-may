@@ -45,11 +45,13 @@ object MainExample extends App {
   val dumpLayerArgs = new DumpLayerArgsExample(args)
 
   implicit val ss: SparkSession = SparkSession
-    .builder()
+    .builder
     .appName("dump-layer")
-    .getOrCreate()
+    .getOrCreate
 
   new DumpLayerJobExample().processDump(
+    new HdfsStorageExample,
+    new ElasticsearchStorageExample,
     dumpLayerArgs.questionsInput(),
     dumpLayerArgs.answersInput(),
     dumpLayerArgs.questionsOutput(),

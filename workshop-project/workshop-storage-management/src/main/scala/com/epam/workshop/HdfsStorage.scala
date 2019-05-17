@@ -1,12 +1,10 @@
 package com.epam.workshop
 
-import org.apache.spark.sql.catalyst.ScalaReflection
-import org.apache.spark.sql.types.StructType
 import org.apache.spark.sql.{Dataset, Encoder, SaveMode, SparkSession}
 
 import scala.reflect.runtime.universe.TypeTag
 
-class HdfsStorage(implicit ss: SparkSession) {
+class HdfsStorage(implicit ss: SparkSession) extends Serializable {
 
   def readEntity[T: TypeTag](path: String)(implicit encoder: Encoder[T]): Dataset[T] = ???
 

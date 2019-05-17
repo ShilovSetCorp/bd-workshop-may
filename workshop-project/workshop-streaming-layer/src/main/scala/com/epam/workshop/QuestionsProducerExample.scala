@@ -12,7 +12,8 @@ import org.codehaus.jackson.map.ObjectMapper
 
 class QuestionsProducerExample(implicit ss: SparkSession, ssc: StreamingContext) {
 
-  def produceQuestions(inputPath: String,
+  def produceQuestions(hdfsStorage: HdfsStorageExample,
+                       inputPath: String,
                        outputPath: String,
                        bootstrapServer: String,
                        topic: String): Unit = {
@@ -21,44 +22,48 @@ class QuestionsProducerExample(implicit ss: SparkSession, ssc: StreamingContext)
 
     ssc
       .textFileStream(inputPath)
-      .foreachRDD(rdd => rdd
-        .map(str => RawQuestion.fromList(str.split(",").toList))
-        .foreachPartition(partitionRdd => {
+      .map(str => RawQuestion.fromList(str.split(",").toList))
+      .foreachRDD { rdd => {
 
-          val rawQuestions = ss.createDataset[RawQuestion](partitionRdd.toSeq)
+        val df = rdd.toDF()
+        df
+          .withColumn("tags", prepareTagsUdf(df.col("tags")))
+          .as[RawQuestion]
+          .map(questionToCommon)
+          .foreachPartition(partitionDs => {
 
-          new HdfsStorageExample()
-            .writeEntity(
-              rawQuestions,
-              outputPath,
-              SaveMode.Append
-            )
+            val kafkaConfig = new Properties()
+            kafkaConfig.put("key.serializer", classOf[StringSerializer])
+            kafkaConfig.put("value.serializer", classOf[StringSerializer])
+            kafkaConfig.put("bootstrap.servers", bootstrapServer)
 
-          val kafkaConfig = new Properties()
-          kafkaConfig.put("key.serializer", classOf[StringSerializer])
-          kafkaConfig.put("value.serializer", classOf[StringSerializer])
-          kafkaConfig.put("bootstrap.servers", bootstrapServer)
+            val producer = new KafkaProducer[String, String](kafkaConfig)
 
-          val producer = new KafkaProducer[String, String](kafkaConfig)
+            val objectMapper = new ObjectMapper
 
-          val objectMapper = new ObjectMapper
-
-          rawQuestions
-            .withColumn("tags", prepareTagsUdf(rawQuestions.col("tags")))
-            .as[RawQuestion]
-            .map(questionToCommon)
-            .foreach(post =>
-              producer.send(
-                new ProducerRecord(
-                  topic,
-                  post.id,
-                  objectMapper.writeValueAsString(post)
+            partitionDs
+              .foreach(post =>
+                producer.send(
+                  new ProducerRecord(
+                    topic,
+                    post.id,
+                    objectMapper.writeValueAsString(post)
+                  )
                 )
               )
-            )
-          producer.close()
-        })
-      )
+            producer.close()
+          })
+
+        hdfsStorage.writeEntity(
+          df.as[RawQuestion],
+          outputPath,
+          SaveMode.Append
+        )
+      }
+      }
+
+    ssc.start()
+    ssc.awaitTermination()
   }
 }
 

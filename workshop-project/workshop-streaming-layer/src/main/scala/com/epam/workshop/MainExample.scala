@@ -39,6 +39,7 @@ object MainExample extends App {
   implicit val ssc: StreamingContext = new StreamingContext(ss.sparkContext, Seconds(2))
 
   new QuestionsProducerExample().produceQuestions(
+    new HdfsStorageExample,
     streamingLayerArgs.inputPath(),
     streamingLayerArgs.outputPath(),
     streamingLayerArgs.bootstrapServer(),

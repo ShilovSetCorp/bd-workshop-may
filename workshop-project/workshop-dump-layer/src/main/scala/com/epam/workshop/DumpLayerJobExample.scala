@@ -6,7 +6,9 @@ import org.apache.spark.sql.{Dataset, SaveMode, SparkSession}
 
 class DumpLayerJobExample(implicit ss: SparkSession) {
 
-  def processDump(questionsInputPath: String,
+  def processDump(hdfsStorage: HdfsStorageExample,
+                  elasticsearchStorage: ElasticsearchStorageExample,
+                  questionsInputPath: String,
                   answersInputPath: String,
                   questionsOutputPath: String,
                   answersOutputPath: String,
@@ -16,8 +18,6 @@ class DumpLayerJobExample(implicit ss: SparkSession) {
                   esIndex: String): Unit = {
 
     import ss.implicits._
-
-    val hdfsStorage = new HdfsStorageExample()
 
     val rawQuestions: Dataset[RawQuestion] = hdfsStorage.readEntity[RawQuestion](questionsInputPath)
     val answers = hdfsStorage.readEntity[RawAnswer](answersInputPath)
@@ -43,7 +43,7 @@ class DumpLayerJobExample(implicit ss: SparkSession) {
 
     hdfsStorage.writeEntity(commonPosts, commonOutputPath, SaveMode.Overwrite)
 
-    new ElasticsearchStorageExample().writeEntity(commonPosts, esServer, esPort, esIndex)
+    elasticsearchStorage.writeEntity(commonPosts, esServer, esPort, esIndex)
   }
 }
 

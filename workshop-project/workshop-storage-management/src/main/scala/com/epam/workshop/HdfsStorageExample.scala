@@ -6,7 +6,7 @@ import org.apache.spark.sql.{Dataset, Encoder, SaveMode, SparkSession}
 
 import scala.reflect.runtime.universe.TypeTag
 
-class HdfsStorageExample(implicit ss: SparkSession) {
+class HdfsStorageExample(implicit ss: SparkSession) extends Serializable {
 
   def readEntity[T: TypeTag](path: String)(implicit encoder: Encoder[T]): Dataset[T] =
     ss
@@ -18,7 +18,7 @@ class HdfsStorageExample(implicit ss: SparkSession) {
       .csv(path)
       .as[T]
 
-  def writeEntity(entity: Dataset[_], path: String, saveMode: SaveMode): Unit = entity
+  def writeEntity[T](entity: Dataset[T], path: String, saveMode: SaveMode): Unit = entity
     .toDF()
     .coalesce(1)
     .write

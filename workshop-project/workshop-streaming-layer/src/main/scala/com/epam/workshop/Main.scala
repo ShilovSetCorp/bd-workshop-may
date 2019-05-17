@@ -1,7 +1,5 @@
 package com.epam.workshop
 
-import org.apache.spark.sql.SparkSession
-import org.apache.spark.streaming.{Seconds, StreamingContext}
 import org.rogach.scallop.{ScallopConf, ScallopOption}
 
 import scala.language.postfixOps
