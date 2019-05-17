@@ -2,7 +2,7 @@ package com.epam.workshop
 
 import java.util.Properties
 
-import com.epam.workshop.QuestionsProducerExample.prepareTagsUdf
+import com.epam.workshop.QuestionsProducerExample.{prepareTagsUdf, questionToCommon}
 import org.apache.kafka.clients.producer.{KafkaProducer, ProducerRecord}
 import org.apache.kafka.common.serialization.StringSerializer
 import org.apache.spark.sql.functions.udf
@@ -24,12 +24,12 @@ class QuestionsProducerExample(implicit ss: SparkSession, ssc: StreamingContext)
       .foreachRDD(rdd => rdd
         .map(str => RawQuestion.fromList(str.split(",").toList))
         .foreachPartition(partitionRdd => {
+
           val rawQuestions = ss.createDataset[RawQuestion](partitionRdd.toSeq)
+
           new HdfsStorageExample()
             .writeEntity(
-              rawQuestions
-                .withColumn("tags", prepareTagsUdf(rawQuestions.col("tags")))
-                .as[RawQuestion],
+              rawQuestions,
               outputPath,
               SaveMode.Append
             )
@@ -43,28 +43,19 @@ class QuestionsProducerExample(implicit ss: SparkSession, ssc: StreamingContext)
 
           val objectMapper = new ObjectMapper
 
-          partitionRdd
-            .foreach(question => {
-              val value = CommonPost(
-                question.id,
-                question.postTypeId,
-                question.id,
-                question.creationDate,
-                question.ownerUserId,
-                question.tags,
-                question.score,
-                question.acceptedAnswerId,
-                question.favoriteCount
-              )
+          rawQuestions
+            .withColumn("tags", prepareTagsUdf(rawQuestions.col("tags")))
+            .as[RawQuestion]
+            .map(questionToCommon)
+            .foreach(post =>
               producer.send(
                 new ProducerRecord(
                   topic,
-                  question.id,
-                  objectMapper.writeValueAsString(value)
+                  post.id,
+                  objectMapper.writeValueAsString(post)
                 )
               )
-            })
-
+            )
           producer.close()
         })
       )
@@ -78,4 +69,17 @@ object QuestionsProducerExample {
     .dropRight(1)
     .replaceAll("><", " ")
   )
+
+  private def questionToCommon(question: RawQuestion) =
+    CommonPost(
+      question.id,
+      question.postTypeId,
+      question.id,
+      question.creationDate,
+      question.ownerUserId,
+      question.tags,
+      question.score,
+      question.acceptedAnswerId,
+      question.favoriteCount
+    )
 }

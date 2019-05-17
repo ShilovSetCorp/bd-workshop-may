@@ -2,6 +2,7 @@ package com.epam.workshop
 
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.streaming.StreamingContext
+import org.codehaus.jackson.map.ObjectMapper
 
 class QuestionsProducer(implicit ss: SparkSession, ssc: StreamingContext) {
 
@@ -20,22 +21,9 @@ class QuestionsProducer(implicit ss: SparkSession, ssc: StreamingContext) {
 
           //create kafka producer
 
-          partitionRdd
-            .foreach(question => {
-              val value = CommonPost(
-                question.id,
-                question.postTypeId,
-                question.id,
-                question.creationDate,
-                question.ownerUserId,
-                question.tags,
-                question.score,
-                question.acceptedAnswerId,
-                question.favoriteCount
-              )
+          val objectMapper = new ObjectMapper
 
-              //send message
-            })
+          //send message
 
           //close producer
         })
