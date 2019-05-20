@@ -2,11 +2,11 @@ package com.epam.workshop
 
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.functions.udf
-import org.apache.spark.streaming.StreamingContext
 
-class QuestionsProducer(implicit ss: SparkSession, ssc: StreamingContext) {
+class QuestionsProducer(implicit ss: SparkSession) {
 
-  def produceQuestions(hdfsStorage: HdfsStorage,
+  def produceQuestions(hdfsGateway: HdfsGateway,
+                       kafkaGateway: KafkaGateway,
                        inputPath: String,
                        outputPath: String,
                        bootstrapServer: String,

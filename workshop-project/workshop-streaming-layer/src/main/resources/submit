@@ -1,10 +1,11 @@
 export SPARK_MAJOR_VERSION=2
 
-spark-submit --master yarn --deploy-mode cluster \
-    --class com.epam.workshop.Main \
-    --driver-memory 1024m --num-executors 1 --executor-memory 1024m --conf spark.executor.cores=2 \
+spark-submit --packages org.apache.spark:spark-sql-kafka-0-10_2.11:2.3.0 \
+    --master yarn --deploy-mode cluster \
+    --class com.epam.workshop.MainExample \
+    --driver-memory 512m --num-executors 1 --executor-memory 512m --conf spark.executor.cores=2 \
     workshop-streaming-layer-1.0-SNAPSHOT-jar-with-dependencies.jar \
-    --input-path /user/workshop/input/streaming-questions.csv \
+    --input-path /user/workshop/input/streaming \
     --output-path /user/workshop/output/questions \
     --bootstrap-server sandbox-hdp.hortonworks.com:6667 \
     --topic common-posts

@@ -1,7 +1,6 @@
 package com.epam.workshop
 
 import org.apache.spark.sql.SparkSession
-import org.apache.spark.streaming.{Seconds, StreamingContext}
 import org.rogach.scallop.{ScallopConf, ScallopOption}
 
 import scala.language.postfixOps
@@ -36,10 +35,9 @@ object MainExample extends App {
     .appName("streaming-layer")
     .getOrCreate()
 
-  implicit val ssc: StreamingContext = new StreamingContext(ss.sparkContext, Seconds(2))
-
   new QuestionsProducerExample().produceQuestions(
-    new HdfsStorageExample,
+    new HdfsGatewayExample,
+    new KafkaGatewayExample,
     streamingLayerArgs.inputPath(),
     streamingLayerArgs.outputPath(),
     streamingLayerArgs.bootstrapServer(),

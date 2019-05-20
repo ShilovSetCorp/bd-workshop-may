@@ -50,8 +50,8 @@ object MainExample extends App {
     .getOrCreate
 
   new DumpLayerJobExample().processDump(
-    new HdfsStorageExample,
-    new ElasticsearchStorageExample,
+    new HdfsGatewayExample,
+    new ElasticsearchGatewayExample,
     dumpLayerArgs.questionsInput(),
     dumpLayerArgs.answersInput(),
     dumpLayerArgs.questionsOutput(),

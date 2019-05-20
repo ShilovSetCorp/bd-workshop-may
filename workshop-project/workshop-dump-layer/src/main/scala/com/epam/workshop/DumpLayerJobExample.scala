@@ -6,8 +6,8 @@ import org.apache.spark.sql.{Dataset, SaveMode, SparkSession}
 
 class DumpLayerJobExample(implicit ss: SparkSession) {
 
-  def processDump(hdfsStorage: HdfsStorageExample,
-                  elasticsearchStorage: ElasticsearchStorageExample,
+  def processDump(hdfsStorage: HdfsGatewayExample,
+                  elasticsearchStorage: ElasticsearchGatewayExample,
                   questionsInputPath: String,
                   answersInputPath: String,
                   questionsOutputPath: String,

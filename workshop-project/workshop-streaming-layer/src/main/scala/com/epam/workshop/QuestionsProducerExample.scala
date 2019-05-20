@@ -1,18 +1,14 @@
 package com.epam.workshop
 
-import java.util.Properties
+import com.fasterxml.jackson.databind.ObjectMapper
+import org.apache.spark.sql.SparkSession
+import org.apache.spark.sql.functions._
+import org.apache.spark.sql.streaming.OutputMode
 
-import com.epam.workshop.QuestionsProducerExample.{prepareTagsUdf, questionToCommon}
-import org.apache.kafka.clients.producer.{KafkaProducer, ProducerRecord}
-import org.apache.kafka.common.serialization.StringSerializer
-import org.apache.spark.sql.functions.udf
-import org.apache.spark.sql.{SaveMode, SparkSession}
-import org.apache.spark.streaming.StreamingContext
-import org.codehaus.jackson.map.ObjectMapper
+class QuestionsProducerExample(implicit ss: SparkSession) {
 
-class QuestionsProducerExample(implicit ss: SparkSession, ssc: StreamingContext) {
-
-  def produceQuestions(hdfsStorage: HdfsStorageExample,
+  def produceQuestions(hdfsGateway: HdfsGatewayExample,
+                       kafkaGateway: KafkaGatewayExample,
                        inputPath: String,
                        outputPath: String,
                        bootstrapServer: String,
@@ -20,50 +16,24 @@ class QuestionsProducerExample(implicit ss: SparkSession, ssc: StreamingContext)
 
     import ss.implicits._
 
-    ssc
-      .textFileStream(inputPath)
-      .map(str => RawQuestion.fromList(str.split(",").toList))
-      .foreachRDD { rdd => {
+    val questionsStream = hdfsGateway.readStreamEntity[RawQuestion](inputPath)
 
-        val df = rdd.toDF()
-        df
-          .withColumn("tags", prepareTagsUdf(df.col("tags")))
-          .as[RawQuestion]
-          .map(questionToCommon)
-          .foreachPartition(partitionDs => {
+    val writeToHdfsQuery = hdfsGateway.writeStreamEntity(questionsStream, outputPath, OutputMode.Append(), "parquet")
 
-            val kafkaConfig = new Properties()
-            kafkaConfig.put("key.serializer", classOf[StringSerializer])
-            kafkaConfig.put("value.serializer", classOf[StringSerializer])
-            kafkaConfig.put("bootstrap.servers", bootstrapServer)
+    val writeToKafkaQuery = {
 
-            val producer = new KafkaProducer[String, String](kafkaConfig)
+      val questionsDf = questionsStream.toDF()
+      val posts = questionsDf
+        .withColumn("tags", QuestionsProducerExample.prepareTagsUdf(questionsDf.col("tags")))
+        .as[RawQuestion]
+        .map(QuestionsProducerExample.questionToCommon)
+        .mapPartitions(_.map(post => new ObjectMapper().writeValueAsString(post)))
 
-            val objectMapper = new ObjectMapper
+      kafkaGateway.writeStreamEntity(posts, bootstrapServer, topic)
+    }
 
-            partitionDs
-              .foreach(post =>
-                producer.send(
-                  new ProducerRecord(
-                    topic,
-                    post.id,
-                    objectMapper.writeValueAsString(post)
-                  )
-                )
-              )
-            producer.close()
-          })
-
-        hdfsStorage.writeEntity(
-          df.as[RawQuestion],
-          outputPath,
-          SaveMode.Append
-        )
-      }
-      }
-
-    ssc.start()
-    ssc.awaitTermination()
+    writeToHdfsQuery.awaitTermination()
+    writeToKafkaQuery.awaitTermination()
   }
 }
 

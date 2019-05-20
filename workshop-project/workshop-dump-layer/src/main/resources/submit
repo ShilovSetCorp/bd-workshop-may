@@ -1,10 +1,10 @@
 export SPARK_MAJOR_VERSION=2
 
-spark-submit --master yarn --deploy-mode cluster --class com.epam.workshop.Main \
-    --driver-memory 1024m --num-executors 1 --executor-memory 1024m --conf spark.executor.cores=2 \
+spark-submit --master yarn --deploy-mode cluster --class com.epam.workshop.MainExample \
+    --driver-memory 512m --num-executors 1 --executor-memory 512m --conf spark.executor.cores=2 \
     workshop-dump-layer-1.0-SNAPSHOT-jar-with-dependencies.jar \
-    --questions-input /user/workshop/input/questions.csv \
-    --answers-input /user/workshop/input/answers.csv \
+    --questions-input /user/workshop/input/questions \
+    --answers-input /user/workshop/input/answers \
     --questions-output /user/workshop/output/questions \
     --answers-output /user/workshop/output/answers \
     --common-output /user/workshop/output/common \
