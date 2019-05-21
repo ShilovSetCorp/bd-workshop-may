@@ -2,7 +2,7 @@ export SPARK_MAJOR_VERSION=2
 
 spark-submit --packages org.apache.spark:spark-sql-kafka-0-10_2.11:2.3.0 \
     --master yarn --deploy-mode cluster \
-    --class com.epam.workshop.MainExample \
+    --class com.epam.workshop.Main \
     --driver-memory 512m --num-executors 1 --executor-memory 512m --conf spark.executor.cores=2 \
     workshop-streaming-layer-1.0-SNAPSHOT-jar-with-dependencies.jar \
     --input-path /user/workshop/input/streaming \

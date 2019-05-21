@@ -1,6 +1,6 @@
 export SPARK_MAJOR_VERSION=2
 
-spark-submit --master yarn --deploy-mode cluster --class com.epam.workshop.MainExample \
+spark-submit --master yarn --deploy-mode cluster --class com.epam.workshop.Main \
     --driver-memory 512m --num-executors 1 --executor-memory 512m --conf spark.executor.cores=2 \
     workshop-dump-layer-1.0-SNAPSHOT-jar-with-dependencies.jar \
     --questions-input /user/workshop/input/questions \
