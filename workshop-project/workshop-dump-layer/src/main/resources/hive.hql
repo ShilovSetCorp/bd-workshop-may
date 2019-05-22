@@ -21,4 +21,4 @@ INNER JOIN
 		(SELECT * FROM common_posts
 			WHERE postType = '2') AS answers
 	GROUP BY questionId) AS most_liked
-ON common_posts.questionId = most_liked.questionId
+ON common_posts.questionId = most_liked.questionId;
