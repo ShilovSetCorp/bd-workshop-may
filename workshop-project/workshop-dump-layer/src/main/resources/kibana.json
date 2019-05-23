@@ -1,0 +1,15 @@
+GET workshop/_search
+{
+  "query": {
+    "bool": {
+      "should": [
+        { "match": {
+          "tags": "java html regex"
+        }}
+      ],
+      "filter": [
+        { "term" : {"postType" : "1"}}
+      ]
+    }
+  }
+}
